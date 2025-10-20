@@ -1,0 +1,67 @@
+[project]
+name = "raag-midi-gen"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Rishabh Malviya", email = "rishabh.malviya@gmail.com"}
+]
+readme = "README.md"
+requires-python = "3.12.9"
+dynamic = [ "dependencies" ]
+
+
+########################
+# Prod Dependencies
+########################
+[tool.poetry.dependencies]
+# PyTorch
+torch = { version = "2.6.0", source = "pytorch-cuda12.4" }
+torchvision = { version = "0.21.0", source = "pytorch-cuda12.4" }
+
+# PyTorch Extras
+lightning = "^2.5.0.post0"
+jsonargparse = {extras = ["signatures"], version = "^4.36.0"}
+
+# Data Science
+scikit-learn = "^1.6.1"
+
+########################
+# Dev Dependencies
+########################
+infmidi = {extras = ["all"], version = "^0.1.2"}
+websockets = "^15.0.1"
+[tool.poetry.group.dev.dependencies]
+# Data Science
+pandas = "^2.2.3"
+seaborn = "^0.13.2"
+
+# Jupyter
+jupyter = { version = "1.0.0" }
+
+[tool.poetry.group.dev]
+optional = true
+
+########################
+# Train Dependencies
+########################
+[tool.poetry.group.training.dependencies]
+# MLFlow
+mlflow = "^2.20.1"
+boto3 = "^1.36.13"
+
+# PyTorch Extras
+tensorboard = "^2.18.0"
+rich = "^13.9.4"
+
+[tool.poetry.group.training]
+optional = true
+
+
+[[tool.poetry.source]]
+name = "pytorch-cuda12.4"
+url = "https://download.pytorch.org/whl/cu124"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
