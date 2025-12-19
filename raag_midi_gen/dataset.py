@@ -21,7 +21,9 @@ class MIDIFilesDataset(Dataset):
                 if not idx in self._midi_files_dict: raise IndexError
                 else: str_idx = idx
 
-            return str_idx, self._midi_files_dict[str_idx]
+            embellishment_level = int(str_idx.split('.')[1].split('_')[0])
+
+            return str_idx, self._midi_files_dict[str_idx], embellishment_level
 
         else: raise IndexError
 
