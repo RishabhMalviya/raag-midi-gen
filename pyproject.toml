@@ -25,12 +25,15 @@ jsonargparse = {extras = ["signatures"], version = "^4.36.0"}
 # Data Science
 scikit-learn = "^1.6.1"
 
+# MIDI Libraries
+infmidi = {extras = ["all"], version = "^0.1.2"}
+websockets = "^15.0.1"
+muspy = "0.5.0"
+
 ########################
 # Dev Dependencies
 ########################
-infmidi = {extras = ["all"], version = "^0.1.2"}
-websockets = "^15.0.1"
-muspy = "^0.5.0"
+
 [tool.poetry.group.dev.dependencies]
 # Data Science
 pandas = "^2.2.3"

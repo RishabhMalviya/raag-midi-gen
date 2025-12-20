@@ -1,8 +1,8 @@
 import os
 from typing import Dict, Union
 
+import muspy
 import numpy as np
-from infmidi import Midi
 from torch.utils.data import Dataset
 
 
@@ -21,9 +21,7 @@ class MIDIFilesDataset(Dataset):
                 if not idx in self._midi_files_dict: raise IndexError
                 else: str_idx = idx
 
-            embellishment_level = int(str_idx.split('.')[1].split('_')[0])
-
-            return str_idx, self._midi_files_dict[str_idx], embellishment_level
+            return str_idx, self._midi_files_dict[str_idx]
 
         else: raise IndexError
 
@@ -41,20 +39,7 @@ def get_dataset() -> MIDIFilesDataset:
             directory = os_walk_tuple[0]
 
             if filename[-3:] == 'mid':
-                midi_files_dict[filename] = Midi.read(os.path.join(directory, filename))
+                midi_files_dict[filename] = muspy.read_midi(os.path.join(directory, filename))
 
     return MIDIFilesDataset(midi_files_dict)
 
-
-def convert_midi_to_np_array(midi: Midi) -> np.array:
-    ticks_per_beat = midi.ticks_per_beat
-    
-    array = np.zeros((midi.length*ticks_per_beat, 128), dtype=np.uint8)
-
-    for note in midi.tracks[0].notes:
-        note_start = int(note.location*ticks_per_beat)
-        note_end = note_start + int(note.length*ticks_per_beat)
-
-        array[note_start:note_end, note.value] = note.velocity
-
-    return array
