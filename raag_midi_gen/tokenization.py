@@ -107,7 +107,7 @@ def compute_numpy_arrays(note_events, non_null_note_event_positions, length_in_t
     position[...,1]  =  np.cos(np.linspace(0, 2*np.pi*length_in_beats, length_in_ticks))
     position[...,2]  =  np.sin(np.linspace(0, 2*np.pi*length_in_measures, length_in_ticks))    # Periodicity of Measure
     position[...,3]  =  np.cos(np.linspace(0, 2*np.pi*length_in_measures, length_in_ticks))
-    position[...,4]  =  np.sin(np.linspace(0, 2*np.pi, length_in_ticks))                       # Periodicity of Full Clip
+    position[...,4]  =  np.sin(np.linspace(0, 2*np.pi, length_in_ticks))                       # Periodicity of Full MIDI Melody
     position[...,5]  =  np.cos(np.linspace(0, 2*np.pi, length_in_ticks))
 
     # PITCH
@@ -126,7 +126,13 @@ def compute_numpy_arrays(note_events, non_null_note_event_positions, length_in_t
     note_event_type = np.zeros((length_in_ticks,1), dtype=int)
     note_event_type[non_null_note_event_positions,0] = np.array([note_event.event_type.value for note_event in note_events])[non_null_note_event_positions]
 
-    return position, pitch, octave, velocity, note_event_type
+    return {
+        'position': position, 
+        'pitch': pitch, 
+        'octave': octave, 
+        'velocity': velocity, 
+        'note_event_type': note_event_type
+    }
 
 
 def tokenize(muspy_midi):
@@ -148,7 +154,7 @@ def tokenize(muspy_midi):
 
 
 if __name__ == "__main__":
-    from raag_midi_gen.dataset_muspy import get_dataset
+    from raag_midi_gen.dataset import get_dataset
     midi_files_dataset = get_dataset()
     test_muspy_midi = midi_files_dataset['Aeri Aali - Sthaayi 1.1_2.mid'][-1]
 
