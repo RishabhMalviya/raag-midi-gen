@@ -4,7 +4,12 @@ import torch
 import numpy as np
 from torch import nn
 
-from raag_midi_gen.tokenization import EventType
+from raag_midi_gen.tokenization.encoding import EventType
+
+
+NOTE_VOCAB_SIZE = 13  # 0-12, where 0 means no note
+OCTAVE_VOCAB_SIZE = 12  # 0-11, where 0 means no note
+EVENT_TYPE_VOCAB_SIZE = len(EventType)  # Number of event types
 
 
 class NoteAttributeEmbedding(nn.Module):
@@ -12,19 +17,16 @@ class NoteAttributeEmbedding(nn.Module):
         super().__init__()
         
         # Learnable Layer 1: Pitch
-        NOTE_VOCAB_SIZE = 13
         NOTE_EMBED_DIM = 6
         self.pitch_embedder = nn.Embedding(NOTE_VOCAB_SIZE, NOTE_EMBED_DIM)
         
         # Learnable Layer 2: Octave
-        OCTAVE_VOCAB_SIZE = 12
         OCTAVE_EMBED_DIM = 2
         self.octave_embedder = nn.Embedding(OCTAVE_VOCAB_SIZE, OCTAVE_EMBED_DIM)
 
         # Learnable Layer 3: Event Type
-        EVENT_TYPE_SIZE = len(EventType)
         EVENT_TYPE_EMBED_DIM = 1
-        self.event_type_embedder = nn.Embedding(EVENT_TYPE_SIZE, EVENT_TYPE_EMBED_DIM)
+        self.event_type_embedder = nn.Embedding(EVENT_TYPE_VOCAB_SIZE, EVENT_TYPE_EMBED_DIM)
 
     def forward(self, midi_info_arrays: Dict[str, np.ndarray]):
         """
@@ -47,8 +49,6 @@ class NoteAttributeEmbedding(nn.Module):
         velocity=midi_info_arrays['velocity']
         note_event_type=midi_info_arrays['note_event_type']
 
-        print(pitch.shape, octave.shape, velocity.shape, note_event_type.shape)
-
         # Pitch Embedding
         pitch_emb = self.pitch_embedder(torch.from_numpy(pitch[...,0]))
 
@@ -62,8 +62,8 @@ class NoteAttributeEmbedding(nn.Module):
 
 
 if __name__ == "__main__":
-    from raag_midi_gen.dataset import midi_files_dataset
-    from raag_midi_gen.tokenization import tokenize
+    from raag_midi_gen.datasets.dataset import midi_files_dataset
+    from raag_midi_gen.tokenization.encoding import encode_input
 
     # Simple test
     embedder = NoteAttributeEmbedding()
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     midi_files_dataset = midi_files_dataset()
     muspy_midi = midi_files_dataset['Aeri Aali - Sthaayi 1.1_2.mid'][-1]
 
-    midi_info_arrays = tokenize(muspy_midi)
+    midi_info_arrays = encode_input(muspy_midi)
 
     output_embeddings = embedder(midi_info_arrays)
  

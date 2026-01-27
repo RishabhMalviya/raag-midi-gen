@@ -30,9 +30,13 @@ infmidi = {extras = ["all"], version = "^0.1.2"}
 websockets = "^15.0.1"
 muspy = "0.5.0"
 
+# Other
+
 ########################
 # Dev Dependencies
 ########################
+midi2audio = "^0.1.1"
+midiutil = "^1.2.1"
 
 [tool.poetry.group.dev.dependencies]
 # Data Science
@@ -41,6 +45,10 @@ seaborn = "^0.13.2"
 
 # Jupyter
 jupyter = { version = "1.0.0" }
+
+# Other
+miditok = "^3.0.6.post1"
+midi-player = "^0.5.1"
 
 [tool.poetry.group.dev]
 optional = true

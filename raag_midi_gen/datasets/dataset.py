@@ -6,7 +6,7 @@ from collections import defaultdict
 import muspy
 from torch.utils.data import Dataset, DataLoader
 
-from raag_midi_gen.tokenization import tokenize
+from raag_midi_gen.tokenization.encoding import encode_input, encode_target
 
 
 def list_all_midi_files(raag: str = 'Yaman'):
@@ -67,7 +67,7 @@ def embellishment_dataset():
             plain_melody_file_path = self.melody_pairs[idx][0]
             embellished_melody_file_path = self.melody_pairs[idx][1]
 
-            return tokenize(muspy.read_midi(plain_melody_file_path)), tokenize(muspy.read_midi(embellished_melody_file_path))
+            return encode_input(muspy.read_midi(plain_melody_file_path)), encode_target(muspy.read_midi(embellished_melody_file_path))
 
         def __len__(self):
             return len(self.melody_pairs)
@@ -79,8 +79,6 @@ def embellishment_dataset():
 
 
 if __name__ == "__main__":
-    from pprint import pprint
-
     embellishment_dataset = embellishment_dataset()
     embellishment_dataloader = DataLoader(embellishment_dataset, batch_size=1, shuffle=True)
 
@@ -116,7 +114,7 @@ def midi_files_dataset():
     midi_files_dict = {}
 
     here = Path(__file__).parent
-    data_dir = here / ".." / "data" / "midi_files"
+    data_dir = here / ".." / ".." / "data" / "midi_files"
 
     for i, os_walk_tuple in enumerate(os.walk(str(data_dir))):
         files_list = os_walk_tuple[2]
