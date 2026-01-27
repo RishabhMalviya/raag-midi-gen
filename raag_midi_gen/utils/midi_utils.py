@@ -1,6 +1,5 @@
 from midi2audio import FluidSynth
 from IPython.display import Audio, display
-from midiutil import MIDIFile
 import muspy
 
 
@@ -15,13 +14,6 @@ def play_midi_file(midi_file_path: str, audio_file_path: str = 'tmp.wav', sf2_pa
 
 
     display(Audio(audio_file_path, autoplay=True))
-
-
-def play_midiutil_output(midiutil_file: MIDIFile):
-    with open('tmp.mid', 'wb') as output_file:
-        midiutil_file.writeFile(output_file)
-
-    play_midi_file('tmp.mid')
 
 
 def play_muspy_music(muspy_music: muspy.Music):

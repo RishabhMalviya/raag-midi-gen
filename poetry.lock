@@ -3017,17 +3017,6 @@ numpy = ">=1.19"
 tests = ["pytest-cov", "pytest-xdist[psutil]"]
 
 [[package]]
-name = "midiutil"
-version = "1.2.1"
-description = "A pure python library for creating multi-track MIDI files"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "MIDIUtil-1.2.1.tar.gz", hash = "sha256:79fa983bd1efc60785f68a8fe78fa8f45b8d7ec5898bf7cb7f3f7f3336d6a90a"},
-]
-
-[[package]]
 name = "mido"
 version = "1.3.3"
 description = "MIDI Objects for Python"
@@ -6736,4 +6725,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "3.12.9"
-content-hash = "15defa39aab9942a6b6971e633e1a5a0fd92043fe0d7e4eb816a701a65ce7fcf"
+content-hash = "1bc78c0d5dc8dd2be94b56d7641f63b89eb305d2138ae6be7e41bff56043c328"
