@@ -1,27 +1,35 @@
-from collections import defaultdict
-
+import muspy
 import torch
-import torch.nn.functional as F
-from midiutil import MIDIFile
 
-from raag_midi_gen.tokenization.encoding import EventType
-from raag_midi_gen.utils.midi_utils import play_midiutil_output
+from raag_midi_gen.tokenization.notes import EventType
 
 
 DEFAULT_TEMPO = 120
 DEFAULT_TPQ = 96
 
 
+def _initialize_muspy_midi(tempo, tpq) -> muspy.Music:
+    my_midi = muspy.Music()
+    
+    my_midi.resolution = tpq
+    my_midi.tempos = [muspy.Tempo(0, tempo)]
+    my_midi.time_signatures = [muspy.TimeSignature(0, 4, 4)]
+    my_midi.tracks = [muspy.Track(program=0, is_drum=False, notes = [])]
+
+    return my_midi
+
+
 def decode_output(
     velocities: torch.Tensor,
     pitches: torch.Tensor,
     octaves: torch.Tensor,
-    event_type: torch.Tensor
+    event_types: torch.Tensor,
+    tempo: int = DEFAULT_TEMPO,
+    tpq: int = DEFAULT_TPQ
 ):
     notes_tracker = {}
-    final_midi = MIDIFile(numTracks=1)
-    final_midi.addTempo(0,0,DEFAULT_TEMPO)
-    
+    final_midi = _initialize_muspy_midi(tempo, tpq)    
+
     len_in_ticks = velocities.shape[0]
     midi_velocities = (velocities.detach() * 127).clamp(0,127).round().long()
     
@@ -39,33 +47,40 @@ def decode_output(
                 if midi_pitch in notes_tracker:  # Close if there is an existing note
                     on_timestep, velocity = notes_tracker[midi_pitch]
                     duration = t - on_timestep
-                    final_midi.addNote(0, 0, midi_pitch, on_timestep/DEFAULT_TPQ, duration/DEFAULT_TPQ, velocity)
+                    final_midi.tracks[0].notes.append(muspy.Note(time=on_timestep, duration=duration, pitch=midi_pitch, velocity=velocity))
                 notes_tracker[midi_pitch] = (t, current_velocity)
             if event_type == EventType.NOTE_OFF:
                 if midi_pitch in notes_tracker:  # Add note to final_midi if there is a corresponding NOTE_ON event
                     on_timestep, velocity = notes_tracker[midi_pitch]
                     duration = t - on_timestep
-                    final_midi.addNote(0, 0, midi_pitch, on_timestep/DEFAULT_TPQ, duration/DEFAULT_TPQ, velocity)
+                    final_midi.tracks[0].notes.append(muspy.Note(time=on_timestep, duration=duration, pitch=midi_pitch, velocity=velocity))
     
     # Finally, close out any unclosed notes. Default to a duration of a quarter note
     for midi_pitch, info in notes_tracker.items():
-        on_timestep, velocity = notes_tracker[midi_pitch]
-        duration = DEFAULT_TPQ if on_timestep + DEFAULT_TPQ < len_in_ticks else len_in_ticks - on_timestep
-        final_midi.addNote(0, 0, midi_pitch, on_timestep/DEFAULT_TPQ, duration/DEFAULT_TPQ, velocity)
-
-    print(final_midi.tracks[0].MIDIdata)
+        on_timestep, velocity = info
+        duration = tpq if on_timestep + tpq < len_in_ticks else len_in_ticks - on_timestep
+        final_midi.tracks[0].notes.append(muspy.Note(time=on_timestep, duration=duration, pitch=midi_pitch, velocity=velocity))
     
     return final_midi
 
 
 if __name__ == "__main__":
-    seq_len = 786
+    import random
 
-    velocities = torch.sigmoid(torch.randn(seq_len, 1))
-    pitches = F.softmax(torch.randn(seq_len, 13), dim=-1)
-    octaves = F.softmax(torch.randn(seq_len, 12), dim=-1)
-    event_types = F.softmax(torch.randn(seq_len, 4), dim=-1)
+    from raag_midi_gen.tokenization.encoding import encode_target
+    from raag_midi_gen.datasets.dataset import midi_files_dataset
+    from raag_midi_gen.utils.midi_utils import play_muspy_music
+
+    midi_files_dataset = midi_files_dataset()
+    midi_filename, test_muspy_midi = midi_files_dataset[random.randint(1,100)]
+    target_encoding = encode_target(test_muspy_midi)
+    pitches = target_encoding['pitch']
+    octaves = target_encoding['octave']
+    velocities = target_encoding['velocity']
+    event_types = target_encoding['note_event_type']
 
     decoded_midi = decode_output(velocities, pitches, octaves, event_types)
 
-    play_midiutil_output(decoded_midi)
+    print(midi_filename)
+    print('------------------')
+    play_muspy_music(decoded_midi)

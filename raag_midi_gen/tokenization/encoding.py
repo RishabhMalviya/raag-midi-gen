@@ -1,27 +1,12 @@
 import math
 import operator
-from enum import Enum
-from typing import NamedTuple
 from collections import deque
 
 import torch
 import numpy as np
 
 from raag_midi_gen.architecture.embedding import NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE, EVENT_TYPE_VOCAB_SIZE
-
-
-class EventType(Enum):
-    NO_NOTE    = 0
-    NOTE_ON    = 1
-    NOTE_OFF   = 2
-    NOTE_HOLD  = 3
-
-
-class NoteEvent(NamedTuple):
-    position: int
-    midi_pitch: int
-    velocity: int
-    event_type: EventType
+from raag_midi_gen.tokenization.notes import EventType, NoteEvent
 
 
 def separate_on_and_off_events(note):
@@ -183,14 +168,8 @@ def compute_output_torch_tensors(note_events, non_null_note_event_positions, len
 
 def encode_target(muspy_midi):
     ticks_per_qn         =   muspy_midi.resolution
-    beats_per_measure    =   muspy_midi.time_signatures[0].numerator
-    qn_per_beat          =   4/muspy_midi.time_signatures[0].denominator
-    qn_per_measure       =   beats_per_measure*qn_per_beat
-
     length_in_qn         =   math.ceil(muspy_midi.get_end_time()/muspy_midi.resolution)
     length_in_ticks      =   length_in_qn*ticks_per_qn
-    length_in_beats      =   length_in_qn/qn_per_beat
-    length_in_measures   =   length_in_qn/qn_per_measure
 
     note_events_without_holds = [note_event for note in muspy_midi.tracks[0].notes for note_event in separate_on_and_off_events(note)]
     note_events_without_holds = sorted(note_events_without_holds, key=operator.attrgetter('position'))
@@ -207,8 +186,8 @@ def encode_target(muspy_midi):
 
 
 if __name__ == "__main__":
-    from raag_midi_gen.datasets.dataset import get_dataset
-    midi_files_dataset = get_dataset()
+    from raag_midi_gen.datasets.dataset import midi_files_dataset
+    midi_files_dataset = midi_files_dataset()
     test_muspy_midi = midi_files_dataset['Aeri Aali - Sthaayi 1.1_2.mid'][-1]
 
     encode_input(test_muspy_midi)

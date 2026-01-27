@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from torch import nn
 
-from raag_midi_gen.tokenization.encoding import EventType
+from raag_midi_gen.tokenization.notes import EventType
 
 
 NOTE_VOCAB_SIZE = 13  # 0-12, where 0 means no note
