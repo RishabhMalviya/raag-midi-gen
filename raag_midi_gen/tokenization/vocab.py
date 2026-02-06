@@ -21,9 +21,10 @@ class NoteToken(IntEnum):
     B        = 12
 
     # Special Tokens
-    # MASK = 13
-    # BOS = 14
-    # EOS = 15
+    PAD = 13
+    # MASK = 14
+    # BOS = 15
+    # EOS = 16
 
 
 class OctaveToken(IntEnum):
@@ -45,9 +46,10 @@ class OctaveToken(IntEnum):
     OCTAVE_10 = 11
 
     # Special tokens
-    # MASK = 12
-    # BOS = 13
-    # EOS = 14
+    PAD = 12
+    # MASK = 13
+    # BOS = 14
+    # EOS = 15
 
 
 class EventTypeToken(IntEnum):
@@ -61,9 +63,10 @@ class EventTypeToken(IntEnum):
     NOTE_HOLD  = 3
 
     # Special tokens
-    # MASK = 4
-    # BOS = 5
-    # EOS = 6
+    PAD = 4
+    # MASK = 5
+    # BOS = 6
+    # EOS = 7
 
 
 class Vocabulary:
