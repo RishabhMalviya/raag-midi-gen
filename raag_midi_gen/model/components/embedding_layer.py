@@ -4,12 +4,7 @@ import torch
 import numpy as np
 from torch import nn
 
-from raag_midi_gen.tokenization.notes import EventType
-
-
-NOTE_VOCAB_SIZE = 13  # 0-12, where 0 means no note
-OCTAVE_VOCAB_SIZE = 12  # 0-11, where 0 means no note
-EVENT_TYPE_VOCAB_SIZE = len(EventType)  # Number of event types
+from raag_midi_gen.tokenization.vocab import EVENT_TYPE_VOCAB_SIZE, NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE
 
 
 class NoteAttributeEmbedding(nn.Module):
@@ -47,23 +42,23 @@ class NoteAttributeEmbedding(nn.Module):
         pitch=midi_info_arrays['pitch']
         octave=midi_info_arrays['octave']
         velocity=midi_info_arrays['velocity']
-        note_event_type=midi_info_arrays['note_event_type']
+        note_event_type=midi_info_arrays['event_type']
 
         # Pitch Embedding
-        pitch_emb = self.pitch_embedder(torch.from_numpy(pitch[...,0]))
+        pitch_emb = self.pitch_embedder(pitch[...,0])
 
         # Octave Embedding
-        oct_emb = self.octave_embedder(torch.from_numpy(octave[...,0]))
+        oct_emb = self.octave_embedder(octave[...,0])
 
         # Event Type Embedding
-        event_type_emb = self.event_type_embedder(torch.from_numpy(note_event_type[...,0]))
+        event_type_emb = self.event_type_embedder(note_event_type[...,0])
 
-        return torch.cat([pitch_emb, oct_emb, torch.from_numpy(velocity), event_type_emb, torch.from_numpy(position)], dim=-1)
+        return torch.cat([pitch_emb, oct_emb, velocity, event_type_emb, position], dim=-1)
 
 
 if __name__ == "__main__":
-    from raag_midi_gen.datasets.dataset import midi_files_dataset
-    from raag_midi_gen.tokenization.encoding import encode_input
+    from raag_midi_gen.datasets.embellishment_dataset import midi_files_dataset
+    from raag_midi_gen.tokenization.encoding.encode_inputs import encode_input
 
     # Simple test
     embedder = NoteAttributeEmbedding()
