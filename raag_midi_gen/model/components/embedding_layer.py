@@ -7,7 +7,7 @@ from torch import nn
 from raag_midi_gen.tokenization.vocab import EVENT_TYPE_VOCAB_SIZE, NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE
 
 
-class NoteAttributeEmbedding(nn.Module):
+class NoteEventEmbedding(nn.Module):
     def __init__(self):
         super().__init__()
         
@@ -29,42 +29,42 @@ class NoteAttributeEmbedding(nn.Module):
         
         Args:
             midi_info_arrays: Dictionary containing the following keys:
-                position: numpy float array of positions encoded with sin/cos trick at three resolutions - beat, measure, and full clip
                 pitch: numpy int array of note pitches (values in [0,12], where 0 means no note)
                 octave: numpy int array of octaves (values in [0,12], where 0 means no note)
                 velocity: numpy float array of note velocities in [0,1] range
-                note_event_type: numpy int array denoting event types (follows the convention in EventType enum)
+                event_type: numpy int array denoting event types (follows the convention in EventType enum)
+                position: numpy float array of positions encoded with sin/cos trick at three resolutions - beat, measure, and full clip
         
         Returns:
             Concatenated embeddings
         """
-        position=midi_info_arrays['position']
-        pitch=midi_info_arrays['pitch']
-        octave=midi_info_arrays['octave']
-        velocity=midi_info_arrays['velocity']
-        note_event_type=midi_info_arrays['event_type']
+        pitch       =  midi_info_arrays['pitch']
+        octave      =  midi_info_arrays['octave']
+        velocity    =  midi_info_arrays['velocity']
+        event_type  =  midi_info_arrays['event_type']
+        position    =  midi_info_arrays['position']
 
         # Pitch Embedding
-        pitch_emb = self.pitch_embedder(pitch[...,0])
+        pitch_emb = self.pitch_embedder(pitch)
 
         # Octave Embedding
-        oct_emb = self.octave_embedder(octave[...,0])
+        oct_emb = self.octave_embedder(octave)
 
         # Event Type Embedding
-        event_type_emb = self.event_type_embedder(note_event_type[...,0])
+        event_type_emb = self.event_type_embedder(event_type)
 
         return torch.cat([pitch_emb, oct_emb, velocity, event_type_emb, position], dim=-1)
 
 
 if __name__ == "__main__":
-    from raag_midi_gen.datasets.embellishment_dataset import midi_files_dataset
-    from raag_midi_gen.tokenization.encoding.encode_inputs import encode_input
+    from raag_midi_gen.datasets import midi_files_dataset
+    from raag_midi_gen.tokenization.encoding import encode_input
 
     # Simple test
-    embedder = NoteAttributeEmbedding()
+    embedder = NoteEventEmbedding()
 
-    midi_files_dataset = midi_files_dataset()
-    muspy_midi = midi_files_dataset['Aeri Aali - Sthaayi 1.1_2.mid'][-1]
+    dataset = midi_files_dataset.get_dataset()
+    muspy_midi = dataset['Aeri Aali - Sthaayi 1.1_2.mid'][-1]
 
     midi_info_arrays = encode_input(muspy_midi)
 

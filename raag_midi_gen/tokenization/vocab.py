@@ -2,51 +2,57 @@ from enum import IntEnum
 
 
 class NoteToken(IntEnum):
-    """Note vocabulary tokens"""
-    # No Note / Rest
-    NO_NOTE = 0
-
-    # Notes
-    C        = 1
-    C_SHARP  = 2
-    D        = 3
-    D_SHARP  = 4
-    E        = 5
-    F        = 6
-    F_SHARP  = 7
-    G        = 8
-    G_SHARP  = 9
-    A        = 10
-    A_SHARP  = 11
-    B        = 12
+    """
+    Note vocabulary tokens
+    
+    NOTE: Only append to the Special Tokens section at the end of the enum.
+    Everything else is chosen so that MIDI pitches can be efficiently encoded and decoded using numpy operations.
+    """
+    # Decodable Tokens
+    C        = 0
+    C_SHARP  = 1
+    D        = 2
+    D_SHARP  = 3
+    E        = 4
+    F        = 5
+    F_SHARP  = 6
+    G        = 7
+    G_SHARP  = 8
+    A        = 9
+    A_SHARP  = 10
+    B        = 11
 
     # Special Tokens
-    PAD = 13
+    NO_NOTE = 12
+    PAD     = 13
     # MASK = 14
     # BOS = 15
     # EOS = 16
 
 
 class OctaveToken(IntEnum):
-    """Octave vocabulary tokens"""
-    # No Octave / Rest
-    NO_NOTE = 0
-
-    # Octaves
-    OCTAVE_0  = 1
-    OCTAVE_1  = 2
-    OCTAVE_2  = 3
-    OCTAVE_3  = 4
-    OCTAVE_4  = 5
-    OCTAVE_5  = 6
-    OCTAVE_6  = 7
-    OCTAVE_7  = 8
-    OCTAVE_8  = 9
-    OCTAVE_9  = 10
-    OCTAVE_10 = 11
+    """
+    Octave vocabulary tokens
+    
+    NOTE: Only append to the Special Tokens section at the end of the enum.
+    Everything else is chosen so that MIDI pitches can be efficiently encoded and decoded using numpy operations.
+    """
+    # Decodable Tokens
+    OCTAVE_0  = 0
+    OCTAVE_1  = 1
+    OCTAVE_2  = 2
+    OCTAVE_3  = 3
+    OCTAVE_4  = 4
+    OCTAVE_5  = 5
+    OCTAVE_6  = 6
+    OCTAVE_7  = 7
+    OCTAVE_8  = 8
+    OCTAVE_9  = 9
+    OCTAVE_10 = 10
 
     # Special tokens
-    PAD = 12
+    NO_NOTE = 11
+    PAD     = 12
     # MASK = 13
     # BOS = 14
     # EOS = 15
@@ -54,10 +60,8 @@ class OctaveToken(IntEnum):
 
 class EventTypeToken(IntEnum):
     """Event type vocabulary tokens"""
-    # No Event / Rest
-    NO_NOTE = 0
-
-    # Event Types
+    # Decodable Tokens
+    NO_NOTE    = 0
     NOTE_ON    = 1
     NOTE_OFF   = 2
     NOTE_HOLD  = 3
@@ -84,9 +88,15 @@ class Vocabulary:
         self.token_enum = token_type
         self.size = len(token_type)
         
-        # Build mappings
+        # Build Mappings
         self.token_to_id = {token.name: token.value for token in token_type}
         self.id_to_token = {token.value: token.name for token in token_type}
+
+        # Specify Special Tokens
+        if self.token_enum == EventTypeToken:
+            self.special_tokens = ['PAD', 'MASK', 'BOS', 'EOS']
+        else:
+            self.special_tokens = ['NO_NOTE', 'PAD', 'MASK', 'BOS', 'EOS']
     
     def encode(self, token_name: str) -> int:
         """
@@ -128,22 +138,16 @@ class Vocabulary:
         Returns:
             True if the token is a special token (MASK, BOS, EOS)
         """
-        token_name = self.id_to_token.get(token_id)
-        return token_name in ['NO_NOTE', 'MASK', 'BOS', 'EOS'] if token_name else False
+        return self.id_to_token[token_id] in self.special_tokens
     
     def decodable_tokens_range(self):
         """
-        Get a list of all non-special token IDs.
+        Get the start and end of the range of all non-special token IDs.
         
         Returns:
-            List of integer IDs corresponding to non-special tokens
+            start and end of the range of all non-special token IDs
         """
-        if self.token_enum == EventTypeToken:
-            special_tokens = ['MASK', 'BOS', 'EOS']
-        else:
-            special_tokens = ['NO_NOTE', 'MASK', 'BOS', 'EOS']
-
-        decodable_token_indices = [token.value for token in self.token_enum if token.name not in special_tokens]
+        decodable_token_indices = [token.value for token in self.token_enum if token.name not in self.special_tokens]
 
         return min(decodable_token_indices), max(decodable_token_indices) + 1   
 
@@ -152,6 +156,7 @@ class Vocabulary:
 NOTE_VOCAB = Vocabulary(token_type=NoteToken)
 OCTAVE_VOCAB = Vocabulary(token_type=OctaveToken)
 EVENT_TYPE_VOCAB = Vocabulary(token_type=EventTypeToken)
+
 
 # Convenience constants
 NOTE_VOCAB_SIZE = NOTE_VOCAB.size

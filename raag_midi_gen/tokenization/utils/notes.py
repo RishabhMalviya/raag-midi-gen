@@ -1,3 +1,5 @@
+import math
+import operator
 from collections import deque
 from typing import NamedTuple
 
@@ -88,3 +90,23 @@ def insert_note_holds(note_events, length_in_ticks):
     
     non_null_note_event_positions = [note_event.position for note_event in output_note_events if not note_event.event_type == EventTypeToken.NO_NOTE]
     return output_note_events, non_null_note_event_positions
+
+
+def get_musical_lengths(muspy_midi):
+    ticks_per_qn         =   muspy_midi.resolution
+    beats_per_measure    =   muspy_midi.time_signatures[0].numerator
+    qn_per_beat          =   4/muspy_midi.time_signatures[0].denominator
+    qn_per_measure       =   beats_per_measure*qn_per_beat
+
+    length_in_qn         =   math.ceil(muspy_midi.get_end_time()/muspy_midi.resolution)
+    length_in_ticks      =   length_in_qn*ticks_per_qn
+    length_in_beats      =   length_in_qn/qn_per_beat
+    length_in_measures   =   length_in_qn/qn_per_measure
+    return length_in_ticks,length_in_beats,length_in_measures
+
+
+def get_note_event_rep(muspy_midi, length_in_ticks):
+    note_events_without_holds = [note_event for note in muspy_midi.tracks[0].notes for note_event in separate_on_and_off_events(note)]
+    note_events_without_holds = sorted(note_events_without_holds, key=operator.attrgetter('position'))
+    note_events, non_null_note_event_positions = insert_note_holds(note_events_without_holds, length_in_ticks)
+    return note_events,non_null_note_event_positions

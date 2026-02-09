@@ -19,7 +19,7 @@ class MIDIFilesDataset(Dataset):
     def __getitem__(self, idx: Union[str, int]):
         if type(idx) in [int, str]:     
             if type(idx) is int: 
-                if idx > len(self): raise IndexError
+                if idx > len(self): idx = idx % self.__len__
                 else: str_idx = self._midi_files_dict_keys[idx]
                                     
             if type(idx) is str:
