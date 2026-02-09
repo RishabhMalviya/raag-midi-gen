@@ -3,7 +3,7 @@ import operator
 from collections import deque
 from typing import NamedTuple
 
-from raag_midi_gen.tokenization.vocab import EventTypeToken
+from raag_midi_gen.tokenizer.vocab import EventTypeToken
 
 
 class NoteEvent(NamedTuple):

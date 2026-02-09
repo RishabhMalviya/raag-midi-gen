@@ -1,7 +1,7 @@
 import muspy
 import torch
 
-from raag_midi_gen.tokenization.vocab import (
+from raag_midi_gen.tokenizer.vocab import (
     EventTypeToken,
     NOTE_VOCAB_DECODABLE_TOKENS_START, NOTE_VOCAB_DECODABLE_TOKENS_END,
     OCTAVE_VOCAB_DECODABLE_TOKENS_START, OCTAVE_VOCAB_DECODABLE_TOKENS_END,
@@ -94,7 +94,7 @@ def decode_output(
 if __name__ == "__main__":
     import random
 
-    from raag_midi_gen.tokenization.encoding import encode_target
+    from raag_midi_gen.tokenizer import encode_target
     from raag_midi_gen.datasets import midi_files_dataset
     from raag_midi_gen.utils.midi_utils import play_muspy_music
 

@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from torch import nn
 
-from raag_midi_gen.tokenization.vocab import EVENT_TYPE_VOCAB_SIZE, NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE
+from raag_midi_gen.tokenizer.vocab import EVENT_TYPE_VOCAB_SIZE, NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE
 
 
 class NoteEventEmbedding(nn.Module):
@@ -58,7 +58,7 @@ class NoteEventEmbedding(nn.Module):
 
 if __name__ == "__main__":
     from raag_midi_gen.datasets import midi_files_dataset
-    from raag_midi_gen.tokenization.encoding import encode_input
+    from raag_midi_gen.tokenizer import encode_input
 
     # Simple test
     embedder = NoteEventEmbedding()

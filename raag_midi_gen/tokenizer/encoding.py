@@ -1,5 +1,5 @@
-from raag_midi_gen.tokenization.utils.notes import get_note_event_rep, get_musical_lengths
-from raag_midi_gen.tokenization.utils.tensors import (
+from raag_midi_gen.tokenizer.utils.notes import get_note_event_rep, get_musical_lengths
+from raag_midi_gen.tokenizer.utils.tensors import (
     get_pitch_tensor, get_octave_tensor, get_velocity_tensor, get_event_type_tensor, get_position_tensor
 )
 

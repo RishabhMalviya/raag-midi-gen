@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from numba import float64, int64, vectorize
 
-from raag_midi_gen.tokenization.vocab import NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE, EVENT_TYPE_VOCAB_SIZE
+from raag_midi_gen.tokenizer.vocab import NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE, EVENT_TYPE_VOCAB_SIZE
 
 
 # PITCH
