@@ -5,7 +5,7 @@ class NoteToken(IntEnum):
     """
     Note vocabulary tokens
     
-    NOTE: Only append to the Special Tokens section at the end of the enum.
+    !!CAUTION!!: Only append to the Special Tokens section at the end of the enum.
     Everything else is chosen so that MIDI pitches can be efficiently encoded and decoded using numpy operations.
     """
     # Decodable Tokens
@@ -34,7 +34,7 @@ class OctaveToken(IntEnum):
     """
     Octave vocabulary tokens
     
-    NOTE: Only append to the Special Tokens section at the end of the enum.
+    !!CAUTION!!: Only append to the Special Tokens section at the end of the enum.
     Everything else is chosen so that MIDI pitches can be efficiently encoded and decoded using numpy operations.
     """
     # Decodable Tokens
@@ -79,18 +79,18 @@ class Vocabulary:
     Provides bidirectional mapping between token names and IDs.
     """
     
-    def __init__(self, token_type: type):
+    def __init__(self, token_enum):
         """
         Args:
             token_enum: IntEnum class containing all tokens
             name: Optional name for the vocabulary (e.g., 'note', 'octave', 'event_type')
         """
-        self.token_enum = token_type
-        self.size = len(token_type)
+        self.token_enum = token_enum
+        self.size = len(self.token_enum)
         
         # Build Mappings
-        self.token_to_id = {token.name: token.value for token in token_type}
-        self.id_to_token = {token.value: token.name for token in token_type}
+        self.token_to_id = {token.name: token.value for token in self.token_enum}
+        self.id_to_token = {token.value: token.name for token in self.token_enum}
 
         # Specify Special Tokens
         if self.token_enum == EventTypeToken:
@@ -153,9 +153,9 @@ class Vocabulary:
 
 
 # Global vocabulary instances
-NOTE_VOCAB = Vocabulary(token_type=NoteToken)
-OCTAVE_VOCAB = Vocabulary(token_type=OctaveToken)
-EVENT_TYPE_VOCAB = Vocabulary(token_type=EventTypeToken)
+NOTE_VOCAB = Vocabulary(token_enum=NoteToken)
+OCTAVE_VOCAB = Vocabulary(token_enum=OctaveToken)
+EVENT_TYPE_VOCAB = Vocabulary(token_enum=EventTypeToken)
 
 
 # Convenience constants

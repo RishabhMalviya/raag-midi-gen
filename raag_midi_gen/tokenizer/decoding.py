@@ -27,12 +27,11 @@ def _initialize_muspy_midi(tempo, tpq) -> muspy.Music:
 def _get_midi_pitches(pitches: torch.Tensor, octaves: torch.Tensor):
     with torch.no_grad():
         # Slice out special tokens before argmax, so that values are 0-indexed and correspond to actual note pitches/octaves
-        pitches, octaves = \
-            torch.argmax(pitches[..., NOTE_VOCAB_DECODABLE_TOKENS_START:NOTE_VOCAB_DECODABLE_TOKENS_END], dim=-1), \
-                torch.argmax(octaves[..., OCTAVE_VOCAB_DECODABLE_TOKENS_START:OCTAVE_VOCAB_DECODABLE_TOKENS_END], dim=-1)
+        pitches = torch.argmax(pitches[..., NOTE_VOCAB_DECODABLE_TOKENS_START:NOTE_VOCAB_DECODABLE_TOKENS_END], dim=-1)
+        octaves = torch.argmax(octaves[..., OCTAVE_VOCAB_DECODABLE_TOKENS_START:OCTAVE_VOCAB_DECODABLE_TOKENS_END], dim=-1)
 
         # Because the pitches/octaves are 0-indexed, they can directly be used to compute MIDI pitches
-        midi_pitches = octaves*12 + pitches
+        midi_pitches = (octaves*12 + pitches).clamp(0, 127)
 
     return midi_pitches
 
@@ -67,7 +66,7 @@ def decode_output(
                 final_midi.tracks[0].notes.append(muspy.Note(
                     time      = prev_on_timestep,
                     duration  = curr_on_timestep - prev_on_timestep,
-                    pitch     = midi_pitch,
+                    pitch     = int(midi_pitch),
                     velocity  = prev_velocity
                 ))
 

@@ -73,7 +73,7 @@ def get_velocity_tensor(note_events, non_null_note_event_positions, length_in_ti
 
     velocity = np.zeros((length_in_ticks,1), dtype=float)
     velocity[non_null_note_event_positions,0] = np.interp(midi_velocities, [0,127], [0,1])
-    velocity = torch.from_numpy(velocity)
+    velocity = torch.from_numpy(velocity).float()
 
     return velocity
 
@@ -109,6 +109,6 @@ def get_position_tensor(length_in_ticks, length_in_beats, length_in_measures):
     position[...,4]  =  np.sin(np.linspace(0, 2*np.pi, length_in_ticks))
     position[...,5]  =  np.cos(np.linspace(0, 2*np.pi, length_in_ticks))
     
-    position = torch.from_numpy(position)
+    position = torch.from_numpy(position).float()
 
     return position

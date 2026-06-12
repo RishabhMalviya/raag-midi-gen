@@ -6,7 +6,7 @@ from collections import defaultdict
 import muspy
 from torch.utils.data import Dataset, DataLoader
 
-from raag_midi_gen.tokenization.data_conversions.encoding.encode_inputs import encode_input, encode_target
+from raag_midi_gen.tokenizer.encoding import encode_input, encode_target
 
 
 def list_all_midi_files(raag: str = 'Yaman'):
@@ -88,8 +88,8 @@ def get_dataset():
 
 
 if __name__ == "__main__":
-    get_dataset = get_dataset()
-    embellishment_dataloader = DataLoader(get_dataset, batch_size=1, shuffle=True)
+    embellishment_dataset = get_dataset()
+    embellishment_dataloader = DataLoader(embellishment_dataset, batch_size=1, shuffle=True)
 
     plain_features, embellished_features = next(iter(embellishment_dataloader))
     print(plain_features['position'])

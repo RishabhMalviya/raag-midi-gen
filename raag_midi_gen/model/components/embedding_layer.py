@@ -7,20 +7,25 @@ from torch import nn
 from raag_midi_gen.tokenizer.vocab import EVENT_TYPE_VOCAB_SIZE, NOTE_VOCAB_SIZE, OCTAVE_VOCAB_SIZE
 
 
+NOTE_EMBED_DIM = 6
+OCTAVE_EMBED_DIM = 2
+EVENT_TYPE_EMBED_DIM = 1
+POSITION_EMBED_DIM = 6
+
+d_embeddings = NOTE_EMBED_DIM + OCTAVE_EMBED_DIM + EVENT_TYPE_EMBED_DIM + POSITION_EMBED_DIM
+
+
 class NoteEventEmbedding(nn.Module):
     def __init__(self):
         super().__init__()
         
         # Learnable Layer 1: Pitch
-        NOTE_EMBED_DIM = 6
         self.pitch_embedder = nn.Embedding(NOTE_VOCAB_SIZE, NOTE_EMBED_DIM)
         
         # Learnable Layer 2: Octave
-        OCTAVE_EMBED_DIM = 2
         self.octave_embedder = nn.Embedding(OCTAVE_VOCAB_SIZE, OCTAVE_EMBED_DIM)
 
         # Learnable Layer 3: Event Type
-        EVENT_TYPE_EMBED_DIM = 1
         self.event_type_embedder = nn.Embedding(EVENT_TYPE_VOCAB_SIZE, EVENT_TYPE_EMBED_DIM)
 
     def forward(self, midi_info_arrays: Dict[str, np.ndarray]):
